@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import ChatWindow from "@/components/ChatWindow";
 import DiaryEntryForm from "@/components/DiaryEntryForm";
@@ -22,16 +22,15 @@ import { makeId } from "@/lib/utils";
 
 export default function HomePage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [settings, setSettings] = useState<AppSettings>(() => {
-    if (typeof window === "undefined") {
-      return defaultSettings;
-    }
-    return loadSettingsFromLocalStorage();
-  });
+  const [settings, setSettings] = useState<AppSettings>(defaultSettings);
   const [isReplyLoading, setIsReplyLoading] = useState(false);
   const [isTopicLoading, setIsTopicLoading] = useState(false);
   const [latestDiaryText, setLatestDiaryText] = useState("");
   const [topicSuggestion, setTopicSuggestion] = useState<TopicSuggestion | null>(null);
+
+  useEffect(() => {
+    setSettings(loadSettingsFromLocalStorage());
+  }, []);
 
   const selectedPersona = useMemo(
     () =>
