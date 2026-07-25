@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Auraly — controlled reflective-writing study
 
-## Getting Started
+Auraly is a full-stack Next.js research application for a three-condition, between-subject AI-assisted reflective-writing experiment. Participants use anonymous researcher-issued credentials and are locked to their assigned condition. Researchers use a separate admin role to create accounts, monitor progress, and export data.
 
-First, run the development server:
+## What is recorded
+
+- anonymous participant ID and assigned condition
+- start/submission timestamps and completion duration
+- structured prompt inputs, exact full prompts, AI responses, and interaction counts
+- Condition C scaffold questions and answers
+- autosaved draft snapshots and final reflection/word count
+- final submission status and writing-process data
+
+Passwords are hashed with bcrypt. Sessions use signed, HTTP-only, same-site cookies. AI and database credentials remain server-side. There are no names or email addresses in the schema.
+
+## Local setup in VS Code
+
+Requirements: Node.js 20.9+ and VS Code.
+
+1. Open the `Auraly-app` folder in VS Code.
+2. Open **Terminal → New Terminal**.
+3. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+4. Copy `.env.example` to `.env.local`, generate an auth secret, and set the values:
+
+   ```bash
+   cp .env.example .env.local
+   openssl rand -base64 32
+   ```
+
+   Paste the generated string into `AUTH_SECRET`, choose a strong `ADMIN_PASSWORD`, and configure one AI provider. For OpenAI, set `AI_PROVIDER=openai` and add the server-side `OPENAI_API_KEY`. For local Ollama, set `AI_PROVIDER=ollama`, start Ollama, and pull the configured model first.
+
+5. Create/update the admin account and database:
+
+   ```bash
+   npm run setup
+   ```
+
+   The setup command automatically loads the values from `.env.local`.
+
+6. Run development mode:
+
+   ```bash
+   npm run dev
+   ```
+
+7. Open <http://localhost:3000>. Sign in using `ADMIN_LOGIN_ID` and `ADMIN_PASSWORD` from `.env.local`.
+
+For a local production check:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Participant access (recommended)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Participants should **not download or install this repository**. Deploy Auraly once to an HTTPS Node.js host, then send each participant:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. the same HTTPS study URL;
+2. their unique anonymous login ID; and
+3. their unique password, preferably through a separate secure channel.
 
-## Learn More
+The researcher pre-assigns A, B, or C when creating each account. The server enforces the assignment and never shows a condition switcher. All three conditions finish by submitting the final reflection directly; there is no questionnaire step.
 
-To learn more about Next.js, take a look at the following resources:
+## Production data safety
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Use a managed libSQL/Turso database by setting `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` on the host. This keeps data independent from ephemeral application storage and supports provider backups. Restrict the database and hosting accounts to the research team, enable MFA, export encrypted backups on a documented schedule, and define retention/deletion dates in the ethics protocol. Never commit `.env*`, database files, exports, or participant credentials.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Before data collection, run the exact production build through institutional security/privacy review, test all three conditions with test-only accounts, test restore from backup, and verify the AI provider/data-processing terms match participant consent and institutional requirements.

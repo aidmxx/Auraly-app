@@ -38,3 +38,11 @@ coverage/
 # editor settings
 .vscode/
 .idea/
+# Auraly research data and secrets
+.env
+.env.local
+.env.production
+research-data/
+*.db
+*.db-shm
+*.db-wal
