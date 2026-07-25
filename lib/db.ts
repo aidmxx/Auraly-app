@@ -40,8 +40,25 @@ export async function initialiseDatabase() {
         id TEXT PRIMARY KEY, participant_id TEXT NOT NULL REFERENCES users(id),
         content TEXT NOT NULL, word_count INTEGER NOT NULL, created_at TEXT NOT NULL
       )`,
+      `CREATE TABLE IF NOT EXISTS submissions (
+        id TEXT PRIMARY KEY, participant_id TEXT NOT NULL REFERENCES users(id),
+        condition_code TEXT NOT NULL CHECK(condition_code IN ('A','B','C')),
+        started_at TEXT NOT NULL, submitted_at TEXT NOT NULL, completion_seconds INTEGER NOT NULL,
+        edit_count INTEGER NOT NULL DEFAULT 0, prompt_length INTEGER NOT NULL DEFAULT 0,
+        ai_output_length INTEGER NOT NULL DEFAULT 0, final_output_length INTEGER NOT NULL DEFAULT 0,
+        final_reflection TEXT NOT NULL, prompts_json TEXT NOT NULL DEFAULT '[]',
+        ai_outputs_json TEXT NOT NULL DEFAULT '[]', created_at TEXT NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS ai_usage (
+        id TEXT PRIMARY KEY, interaction_id TEXT UNIQUE NOT NULL REFERENCES interactions(id),
+        provider TEXT NOT NULL, model TEXT NOT NULL, input_tokens INTEGER,
+        output_tokens INTEGER, total_tokens INTEGER, duration_ms INTEGER NOT NULL,
+        created_at TEXT NOT NULL
+      )`,
       `CREATE INDEX IF NOT EXISTS idx_interactions_participant ON interactions(participant_id)`,
       `CREATE INDEX IF NOT EXISTS idx_drafts_participant ON drafts(participant_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_submissions_participant ON submissions(participant_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_ai_usage_created ON ai_usage(created_at)`,
     ],
     "write",
   );

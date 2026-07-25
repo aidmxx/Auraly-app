@@ -1,0 +1,20 @@
+.submissionDetail {
+  width: min(620px, 70vw);
+  white-space: normal;
+  padding: 12px 0;
+}
+
+.submissionDetail h4 {
+  margin: 14px 0 6px;
+}
+
+.submissionDetail pre {
+  white-space: pre-wrap;
+  max-height: 240px;
+  overflow: auto;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 10px;
+  font: inherit;
+}
