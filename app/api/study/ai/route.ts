@@ -37,7 +37,7 @@ export async function POST(request:Request){
   let outputTokens: number | null = null;
   let totalTokens: number | null = null;
   const requestStarted = Date.now();
-  const maxOutputTokens = Math.min(2000, Math.max(100, Number(process.env.AI_MAX_OUTPUT_TOKENS) || 600));
+  const maxOutputTokens = Math.min(4000, Math.max(2000, Number(process.env.AI_MAX_OUTPUT_TOKENS) || 2000));
   try {
     if (provider === "ollama") {
       const baseUrl = (process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434").replace(/\/$/, "");
@@ -58,6 +58,7 @@ export async function POST(request:Request){
       inputTokens = result.prompt_eval_count ?? null;
       outputTokens = result.eval_count ?? null;
       totalTokens = inputTokens !== null && outputTokens !== null ? inputTokens + outputTokens : null;
+      if (outputTokens !== null && outputTokens >= maxOutputTokens) throw new Error("AI_OUTPUT_TRUNCATED");
     } else {
       if (!process.env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY_MISSING");
       const client=new OpenAI({apiKey:process.env.OPENAI_API_KEY});
@@ -67,6 +68,7 @@ export async function POST(request:Request){
       inputTokens = completion.usage?.input_tokens ?? null;
       outputTokens = completion.usage?.output_tokens ?? null;
       totalTokens = completion.usage?.total_tokens ?? null;
+      if (completion.status !== "completed") throw new Error("AI_OUTPUT_TRUNCATED");
     }
   } catch (error) {
     if (error instanceof OpenAI.APIError) {
@@ -76,6 +78,9 @@ export async function POST(request:Request){
       if (error.status === 429) return Response.json({error:"The OpenAI account has reached its usage limit or has no available API credit. Ask the researcher to check API billing and limits."},{status:503});
       if (error.status === 404 || error.code === "model_not_found") return Response.json({error:"The configured AI model is not available to this OpenAI project. Ask the researcher to check OPENAI_MODEL."},{status:503});
       return Response.json({error:`OpenAI rejected the request (status ${error.status ?? "unknown"}). Ask the researcher to check the server terminal.`},{status:503});
+    }
+    if (error instanceof Error && error.message === "AI_OUTPUT_TRUNCATED") {
+      return Response.json({error:"The AI response reached its output limit before finishing. Please try again; no incomplete interaction was saved."},{status:503});
     }
     const diagnostic = error instanceof Error ? { name: error.name, message: error.message, cause: error.cause instanceof Error ? error.cause.message : undefined } : { name: "Unknown error" };
     console.error(`${provider} connection failed`, diagnostic);
