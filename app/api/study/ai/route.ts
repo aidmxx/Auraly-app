@@ -63,7 +63,13 @@ export async function POST(request:Request){
       if (!process.env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY_MISSING");
       const client=new OpenAI({apiKey:process.env.OPENAI_API_KEY});
       model = process.env.OPENAI_MODEL || "gpt-5-mini";
-      const completion=await client.responses.create({model,instructions,input:fullPrompt,max_output_tokens:maxOutputTokens});
+      const completion=await client.responses.create({
+        model,
+        instructions,
+        input:fullPrompt,
+        max_output_tokens:maxOutputTokens,
+        reasoning:{effort:"low"},
+      });
       response=completion.output_text;
       inputTokens = completion.usage?.input_tokens ?? null;
       outputTokens = completion.usage?.output_tokens ?? null;
