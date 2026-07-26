@@ -12,15 +12,32 @@ const placeholderTokens = new Set([
   "none", "nothing", "na", "n/a", "xxx", "sample", "random",
 ]);
 
-const wordsIn = (value: string) => value.trim().match(/[A-Za-z0-9]+(?:['’-][A-Za-z0-9]+)*/g) ?? [];
+const fallbackWordsIn = (value: string) =>
+  value.match(/\p{Script=Han}|[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu) ?? [];
+
+const wordsIn = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+
+  if (typeof Intl.Segmenter === "function") {
+    const segmenter = new Intl.Segmenter(undefined, { granularity: "word" });
+    return Array.from(segmenter.segment(trimmed))
+      .filter((segment) => segment.isWordLike)
+      .map((segment) => segment.segment);
+  }
+
+  return fallbackWordsIn(trimmed);
+};
 
 function looksLikeFiller(value: string, tokens: string[]) {
-  const compact = value.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const compact = value.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
   if (!compact) return true;
   if (/^(.)\1{2,}$/.test(compact)) return true;
-  if ("abcdefghijklmnopqrstuvwxyz".includes(compact) && compact.length <= 8) return true;
-  if ("zyxwvutsrqponmlkjihgfedcba".includes(compact) && compact.length <= 8) return true;
+  const isAscii = /^[a-z0-9]+$/.test(compact);
+  if (isAscii && "abcdefghijklmnopqrstuvwxyz".includes(compact) && compact.length <= 8) return true;
+  if (isAscii && "zyxwvutsrqponmlkjihgfedcba".includes(compact) && compact.length <= 8) return true;
   if (tokens.every((token) => placeholderTokens.has(token.toLowerCase()))) return true;
+  if (!isAscii) return false;
   const meaningful = tokens.filter((token) => token.length >= 3 && /[aeiouy]/i.test(token));
   return meaningful.length < Math.min(2, tokens.length);
 }
