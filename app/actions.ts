@@ -30,8 +30,23 @@ export async function createParticipant(formData: FormData) {
   redirect("/admin?created=1");
 }
 
-export async function setParticipantActive(formData: FormData) {
+export async function deleteParticipant(formData: FormData) {
   await requireUser("admin");
-  await db().execute({ sql: "UPDATE users SET active = ? WHERE id = ? AND role = 'participant'", args: [formData.get("active") === "1" ? 1 : 0, String(formData.get("userId"))] });
-  redirect("/admin");
+  const participantId = z.string().min(1).parse(formData.get("userId"));
+  const participant = await db().execute({
+    sql: "SELECT id FROM users WHERE id = ? AND role = 'participant'",
+    args: [participantId],
+  });
+  if (!participant.rows[0]) redirect("/admin");
+
+  await db().batch([
+    { sql: "DELETE FROM ai_usage WHERE interaction_id IN (SELECT id FROM interactions WHERE participant_id = ?)", args: [participantId] },
+    { sql: "DELETE FROM interactions WHERE participant_id = ?", args: [participantId] },
+    { sql: "DELETE FROM scaffolds WHERE participant_id = ?", args: [participantId] },
+    { sql: "DELETE FROM drafts WHERE participant_id = ?", args: [participantId] },
+    { sql: "DELETE FROM submissions WHERE participant_id = ?", args: [participantId] },
+    { sql: "DELETE FROM studies WHERE participant_id = ?", args: [participantId] },
+    { sql: "DELETE FROM users WHERE id = ? AND role = 'participant'", args: [participantId] },
+  ], "write");
+  redirect("/admin?deleted=1");
 }
