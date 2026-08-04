@@ -29,6 +29,14 @@ const wordsIn = (value: string) => {
   return fallbackWordsIn(trimmed);
 };
 
+// Chinese conveys a comparable amount of meaning in substantially fewer
+// characters than space-delimited languages. Keep the word/token requirement,
+// but scale the secondary character floor so valid Chinese input is not rejected.
+const minimumCharactersFor = (value: string, rule: TextRule) =>
+  /\p{Script=Han}/u.test(value)
+    ? Math.min(rule.minCharacters, rule.minWords * 2)
+    : rule.minCharacters;
+
 function looksLikeFiller(value: string, tokens: string[]) {
   const compact = value.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
   if (!compact) return true;
@@ -45,7 +53,7 @@ function looksLikeFiller(value: string, tokens: string[]) {
 export function validateReadableText(value: string, rule: TextRule): ValidationResult {
   const trimmed = value.trim();
   const tokens = wordsIn(trimmed);
-  if (trimmed.length < rule.minCharacters || tokens.length < rule.minWords) {
+  if (trimmed.length < minimumCharactersFor(trimmed, rule) || tokens.length < rule.minWords) {
     return { valid: false, error: `${rule.label} needs at least ${rule.minWords} meaningful words. Please add a little more detail.` };
   }
   if (tokens.length > rule.maxWords) {
