@@ -13,6 +13,14 @@ const scaffoldQuestions = [
   "What did you learn, and what might you do differently?",
 ];
 
+const writingGoalSuggestions = [
+  "Create an agenda or outline",
+  "Generate a polished paragraph",
+  "Organise my ideas clearly",
+  "Improve clarity and flow",
+  "Strengthen the reflective analysis",
+];
+
 export default function StudyWorkspace({ condition, initialDraft, submitted, interactions: initial }: { condition: "A" | "B" | "C"; initialDraft: string; submitted: boolean; interactions: Interaction[] }) {
   const [step, setStep] = useState<1 | 2>(1);
   const [draft, setDraft] = useState(() => initial.some((interaction) => interaction.response.trim() === initialDraft.trim()) ? "" : initialDraft);
@@ -163,7 +171,17 @@ export default function StudyWorkspace({ condition, initialDraft, submitted, int
         {condition === "A" ? <label>Your message<textarea value={inputs.message} onChange={(event) => updateInput("message", event.target.value)} rows={7} required placeholder="Ask for help reflecting, planning, or improving your writing…" /></label> : <>
           <label>Reflection topic<input value={inputs.topic} onChange={(event) => updateInput("topic", event.target.value)} required /></label>
           <label>Relevant context<textarea value={inputs.context} onChange={(event) => updateInput("context", event.target.value)} rows={3} required /></label>
-          <div className="two-col"><label>Tone<select value={inputs.tone} onChange={(event) => updateInput("tone", event.target.value)}><option>Thoughtful</option><option>Personal</option><option>Analytical</option><option>Balanced</option></select></label><label>Writing goal<input value={inputs.goal} onChange={(event) => updateInput("goal", event.target.value)} required placeholder="What should the reflection achieve?" /></label></div>
+          <div className="two-col">
+            <label>Tone<select value={inputs.tone} onChange={(event) => updateInput("tone", event.target.value)}><option>Thoughtful</option><option>Personal</option><option>Analytical</option><option>Balanced</option></select></label>
+            <label>
+              Writing goal
+              <input value={inputs.goal} onChange={(event) => updateInput("goal", event.target.value)} list="writing-goal-suggestions" required placeholder="Choose a goal or type your own" aria-describedby="writing-goal-help" />
+              <datalist id="writing-goal-suggestions">
+                {writingGoalSuggestions.map((goal) => <option key={goal} value={goal} />)}
+              </datalist>
+              <small id="writing-goal-help" className="muted">What would you like the AI to help you produce or improve?</small>
+            </label>
+          </div>
         </>}
         {condition === "C" && <fieldset><legend>Reflective scaffold</legend><p className="muted">Answer these questions before requesting AI support.</p>{scaffolds.map((scaffold, index) => <label key={scaffold.question}>{scaffold.question}<textarea value={scaffold.answer} required rows={2} onChange={(event) => setScaffolds((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, answer: event.target.value } : item))} /></label>)}</fieldset>}
         <button className="primary" disabled={loading}>{loading ? "Generating support…" : "Request AI support"}</button>{message && <div className="error" role="alert">{message}</div>}
