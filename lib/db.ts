@@ -1,6 +1,7 @@
 import { createClient, type Client } from "@libsql/client";
 
 let client: Client | undefined;
+let initialization: Promise<void> | undefined;
 
 export function db() {
   if (!client) {
@@ -12,8 +13,9 @@ export function db() {
   return client;
 }
 
-export async function initialiseDatabase() {
-  await db().batch(
+export function initialiseDatabase() {
+  if (!initialization) {
+    initialization = db().batch(
     [
       `CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY, login_id TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL,
@@ -60,8 +62,13 @@ export async function initialiseDatabase() {
       `CREATE INDEX IF NOT EXISTS idx_submissions_participant ON submissions(participant_id)`,
       `CREATE INDEX IF NOT EXISTS idx_ai_usage_created ON ai_usage(created_at)`,
     ],
-    "write",
-  );
+      "write",
+    ).then(() => undefined).catch((error) => {
+      initialization = undefined;
+      throw error;
+    });
+  }
+  return initialization;
 }
 
 export const id = (prefix: string) => `${prefix}_${crypto.randomUUID()}`;
