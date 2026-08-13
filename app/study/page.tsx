@@ -17,6 +17,6 @@ export default async function StudyPage() {
   return <main className="app-shell">
     <header className="topbar"><div><strong>Auraly</strong><span>Reflective Writing Study</span></div><div><span className="participant-pill">{user.loginId}</span><form action={logout}><button className="link-button">Sign out</button></form></div></header>
     <section className="study-heading"><h1>{conditions[condition].name}</h1><p>{conditions[condition].description}</p></section>
-    <StudyWorkspace condition={condition} initialDraft={String(study.final_reflection || "")} submitted={study.status === "completed"} interactions={interactions.map(r => ({ sequence: Number(r.sequence_no), prompt: String(r.full_prompt), response: String(r.ai_response), createdAt: String(r.created_at) }))} />
+    <StudyWorkspace participantId={user.userId} condition={condition} initialDraft={String(study.final_reflection || "")} submitted={study.status === "completed"} interactions={interactions.map(r => ({ sequence: Number(r.sequence_no), prompt: String(r.full_prompt), response: String(r.ai_response), createdAt: String(r.created_at) }))} />
   </main>;
 }
