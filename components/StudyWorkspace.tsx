@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { validateFinalReflection, validateReadableText, validateSupportRequest } from "@/lib/validation";
+import { SUPPORT_INPUT_MAX_WORDS, validateFinalReflection, validateReadableText, validateSupportRequest } from "@/lib/validation";
 
 type Interaction = { sequence: number; prompt: string; response: string; createdAt: string };
 type PromptInputs = { message: string; topic: string; context: string; tone: string; goal: string };
@@ -137,7 +137,7 @@ export default function StudyWorkspace({ participantId, condition, initialDraft,
       label: "Follow-up request",
       minWords: 4,
       minCharacters: 15,
-      maxWords: 100,
+      maxWords: SUPPORT_INPUT_MAX_WORDS,
     });
     if (!validation.valid) {
       setMessage(validation.error);
@@ -246,7 +246,7 @@ export default function StudyWorkspace({ participantId, condition, initialDraft,
       </form></div><div className="panel chat-panel"><h2>AI interaction log</h2>{!interactions.length ? <div className="empty">Your AI responses will appear here.</div> : interactions.map((interaction) => <article className="response" key={interaction.sequence}><small>Interaction {interaction.sequence}</small><p>{interaction.response}</p><button type="button" className="secondary" onClick={() => selectResponse(interaction)}>Use this response while writing</button></article>)}</div></section>}
     {step === 2 && <section className="workspace-grid writing-workspace">
       <div className="panel editor"><div className="section-head"><div><h2>Selected AI support</h2><p className="muted">{selectedInteraction ? `Interaction ${selectedInteraction} only. Edit these notes if helpful.` : "No AI response selected."}</p></div></div><textarea value={selectedSupport} onChange={(event) => setSelectedSupport(event.target.value)} rows={18} placeholder="Select one AI interaction to use as a reference…" />
-        <form className="stack follow-up-form" onSubmit={extendSelectedSupport}><div><h3>Extend this AI support</h3><p className="muted">Ask AI to rewrite, expand, shorten, or turn the selected material into a polished paragraph. The result will replace the left box and be saved as a new interaction.</p></div><label>Follow-up request<textarea value={followUp} onChange={(event) => setFollowUp(event.target.value)} rows={3} maxLength={800} placeholder="For example: Based on this structure, write one polished reflective paragraph." required /></label><button className="primary" disabled={loading || !selectedSupport.trim()}>{loading ? "Generating replacement…" : "Replace with extended AI response"}</button></form>
+        <form className="stack follow-up-form" onSubmit={extendSelectedSupport}><div><h3>Extend this AI support</h3><p className="muted">Ask AI to rewrite, expand, shorten, or turn the selected material into a polished paragraph. The result will replace the left box and be saved as a new interaction.</p></div><label>Follow-up request<textarea value={followUp} onChange={(event) => setFollowUp(event.target.value)} rows={3} placeholder="For example: Based on this structure, write one polished reflective paragraph." required /></label><button className="primary" disabled={loading || !selectedSupport.trim()}>{loading ? "Generating replacement…" : "Replace with extended AI response"}</button></form>
       </div>
       <div className="panel editor"><div className="section-head"><div><h2>Your final reflection</h2><p className="muted">Write in your own words based on your understanding (30–1,500 words). Only this box is saved and submitted.</p></div><span>{draft.trim() ? draft.trim().split(/\s+/).length : 0} words</span></div><textarea value={draft} onChange={(event) => setDraft(event.target.value)} rows={18} maxLength={12000} placeholder="Write your final reflection here…" />{draftStatus && <div className="error" role="status">{draftStatus}</div>}{message && <div className="error" role="alert">{message}</div>}<div className="actions"><button type="button" className="secondary" onClick={() => setStep(1)}>Back to AI support</button><button type="button" className="primary" disabled={!draft.trim() || loading} onClick={submitFinal}>{loading ? "Submitting…" : "Submit final reflection"}</button></div></div>
     </section>}

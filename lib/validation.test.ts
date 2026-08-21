@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateFinalReflection, validateReadableText, validateSupportRequest } from "./validation";
+import { SUPPORT_INPUT_MAX_WORDS, validateFinalReflection, validateReadableText, validateSupportRequest } from "./validation";
 
 test("Condition A accepts a meaningful Chinese support request", () => {
   assert.deepEqual(
@@ -51,6 +51,30 @@ test("Chinese input still rejects short and filler content", () => {
 
   const filler = validateSupportRequest("A", { message: "哈哈哈哈哈哈哈哈哈哈" }, []);
   assert.equal(filler.valid, false);
+});
+
+test("all support entry boxes accept up to 1000 words and reject 1001", () => {
+  const words = (count: number) => Array.from({ length: count }, (_, index) => `meaningful${index}`).join(" ");
+  const accepted = words(SUPPORT_INPUT_MAX_WORDS);
+  const rejected = words(SUPPORT_INPUT_MAX_WORDS + 1);
+
+  assert.deepEqual(validateSupportRequest("A", { message: accepted }, []), { valid: true });
+  assert.deepEqual(validateSupportRequest("B", {
+    topic: accepted,
+    context: accepted,
+    tone: "Thoughtful",
+    goal: accepted,
+  }, []), { valid: true });
+  assert.deepEqual(validateSupportRequest("C", {
+    topic: "team reflection",
+    context: "I am reflecting on a meaningful team project experience",
+    tone: "Thoughtful",
+    goal: "Improve my reflective writing",
+  }, [{ question: "What happened?", answer: accepted }]), { valid: true });
+
+  const result = validateSupportRequest("A", { message: rejected }, []);
+  assert.equal(result.valid, false);
+  if (!result.valid) assert.match(result.error, /1000 words or fewer/);
 });
 
 test("Final reflection accepts substantive Chinese writing", () => {

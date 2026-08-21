@@ -1,5 +1,7 @@
 export type ValidationResult = { valid: true } | { valid: false; error: string };
 
+export const SUPPORT_INPUT_MAX_WORDS = 1000;
+
 type TextRule = {
   label: string;
   minWords: number;
@@ -71,11 +73,11 @@ export function validateSupportRequest(
   scaffolds: Array<{ question: string; answer: string }>,
 ): ValidationResult {
   const checks = condition === "A"
-    ? [validateReadableText(inputs.message ?? "", { label: "Your message", minWords: 5, minCharacters: 20, maxWords: 250 })]
+    ? [validateReadableText(inputs.message ?? "", { label: "Your message", minWords: 5, minCharacters: 20, maxWords: SUPPORT_INPUT_MAX_WORDS })]
     : [
-        validateReadableText(inputs.topic ?? "", { label: "Reflection topic", minWords: 2, minCharacters: 6, maxWords: 30 }),
-        validateReadableText(inputs.context ?? "", { label: "Relevant context", minWords: 5, minCharacters: 20, maxWords: 250 }),
-        validateReadableText(inputs.goal ?? "", { label: "Writing goal", minWords: 3, minCharacters: 12, maxWords: 60 }),
+        validateReadableText(inputs.topic ?? "", { label: "Reflection topic", minWords: 2, minCharacters: 6, maxWords: SUPPORT_INPUT_MAX_WORDS }),
+        validateReadableText(inputs.context ?? "", { label: "Relevant context", minWords: 5, minCharacters: 20, maxWords: SUPPORT_INPUT_MAX_WORDS }),
+        validateReadableText(inputs.goal ?? "", { label: "Writing goal", minWords: 3, minCharacters: 12, maxWords: SUPPORT_INPUT_MAX_WORDS }),
       ];
 
   if (condition === "C") {
@@ -84,7 +86,7 @@ export function validateSupportRequest(
         label: `Scaffold answer ${index + 1}`,
         minWords: 4,
         minCharacters: 15,
-        maxWords: 150,
+        maxWords: SUPPORT_INPUT_MAX_WORDS,
       }));
     });
   }

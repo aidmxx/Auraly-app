@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { db, id, now } from "@/lib/db";
-import { validateReadableText, validateSupportRequest } from "@/lib/validation";
+import { SUPPORT_INPUT_MAX_WORDS, validateReadableText, validateSupportRequest } from "@/lib/validation";
 
 const schema=z.object({
   mode:z.enum(["support","extend"]).default("support"),
@@ -20,7 +20,7 @@ export async function POST(request:Request){
       label: "Follow-up request",
       minWords: 4,
       minCharacters: 15,
-      maxWords: 100,
+      maxWords: SUPPORT_INPUT_MAX_WORDS,
     });
     if (!instructionValidation.valid) return Response.json({ error: instructionValidation.error }, { status: 400 });
     if (!data.selectedSupport?.trim()) return Response.json({ error: "Select or enter AI support before requesting a follow-up." }, { status: 400 });
