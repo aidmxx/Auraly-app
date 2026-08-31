@@ -8,6 +8,7 @@
     "start": "next start",
     "test": "tsx --test lib/*.test.ts",
     "lint": "eslint .",
+    "backfill:word-counts": "tsx --env-file=.env.local scripts/backfill-word-counts.ts",
     "setup": "tsx --env-file=.env.local scripts/setup.ts"
   },
   "dependencies": {
