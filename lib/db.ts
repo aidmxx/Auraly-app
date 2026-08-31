@@ -73,4 +73,16 @@ export function initialiseDatabase() {
 
 export const id = (prefix: string) => `${prefix}_${crypto.randomUUID()}`;
 export const now = () => new Date().toISOString();
-export const words = (value: string) => value.trim() ? value.trim().split(/\s+/).length : 0;
+
+/**
+ * Count meaningful text units across space-delimited and CJK writing systems.
+ * Each Han character counts as one unit; other letters/numbers count as words.
+ * Whitespace, line breaks, punctuation, symbols, and emoji do not count.
+ */
+export const words = (value: string) => {
+  const normalized = value.normalize("NFKC");
+  const hanCharacters = normalized.match(/\p{Script=Han}/gu)?.length ?? 0;
+  const withoutHan = normalized.replace(/\p{Script=Han}/gu, " ");
+  const otherWords = withoutHan.match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+  return hanCharacters + otherWords;
+};

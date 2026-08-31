@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { words } from "./db";
 import { SUPPORT_INPUT_MAX_WORDS, validateFinalReflection, validateReadableText, validateSupportRequest } from "./validation";
+
+test("word count handles Chinese characters and ignores whitespace or punctuation", () => {
+  assert.equal(words("我要完成一个反思\n给我一个写作框架"), 16);
+  assert.equal(words("hello, reflective world!\nnext line"), 5);
+  assert.equal(words("AI 帮助我 reflect 2 次。"), 7);
+  assert.equal(words("\n \t，。！？"), 0);
+});
 
 test("Condition A accepts a meaningful Chinese support request", () => {
   assert.deepEqual(
