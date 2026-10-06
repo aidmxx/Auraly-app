@@ -1,0 +1,41 @@
+.shell{min-height:100vh;background:#080808;color:#f7f7fa;padding:32px 24px 72px;font:16px/1.5 Arial,Helvetica,sans-serif}
+.wrap{width:min(1100px,100%);margin:auto}
+.wrap h1{font-size:30px;line-height:1.25;margin:0 0 42px;font-weight:700}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:36px}
+.step{min-height:64px;display:flex;align-items:center;gap:14px;padding:12px 16px;border:1px solid #1c2435;border-radius:9px;background:#111725;color:#c4c8d2;white-space:nowrap}
+.activeStep{border-color:#5796fb;background:#213a82;color:#fff}
+.stepNumber{width:35px;height:35px;flex:none;display:grid;place-items:center;border-radius:50%;background:#35445e;color:#fff;font-weight:700}
+.activeStep .stepNumber{background:#60a5fa}
+.card{padding:38px 40px 42px;border:1px solid #1a2232;border-radius:16px;background:#121725;color:#f4f4f7}
+.card h2{font-size:22px;line-height:1.3;margin:0 0 18px}
+.intro{color:#bfc4cf;margin:0 0 38px;font-size:16px}
+.presetList,.ownership{border:0;padding:0;margin:0 0 34px;min-width:0}
+.presetList legend,.ownership legend{padding:0;margin:0 0 20px;font-size:16px;font-weight:600;color:#d6dae3}
+.preset{display:flex;align-items:center;gap:14px;margin:0 0 14px;cursor:pointer;color:#d6dae3;font-weight:400}
+.preset input{width:auto;margin:0;accent-color:#60a5fa}
+.field{display:block;color:#d6dae3;font-size:16px;font-weight:600;margin:0 0 12px}
+.field textarea{margin-top:14px}
+.card textarea{display:block;width:100%;min-height:130px;padding:16px;border:1px solid #1b2437;border-radius:8px;background:#030719;color:#f5f6fa;font:16px/1.55 Arial,Helvetica,sans-serif;resize:vertical}
+.card textarea:focus{outline:2px solid #4965a8;border-color:#4965a8}
+.card textarea::placeholder{color:#858da0}
+.hint{margin:14px 0 28px;color:#81899a;font-size:13px}
+.primary,.secondary{min-height:47px;padding:10px 20px;border-radius:9px;border:1px solid transparent;cursor:pointer;font-size:15px;font-weight:600}
+.primary{background:#60a5fa;color:#fff}
+.primary:hover:not(:disabled){background:#4d95ee}
+.primary:disabled{opacity:.6;cursor:wait}
+.secondary{border-color:#1a2232;background:transparent;color:#f2f2f5}
+.secondary:hover{background:#1b2538}
+.actions{display:flex;gap:14px;margin-top:32px}
+.promptBox{background:#030719;border-radius:6px;padding:12px 16px;margin:0 0 32px}
+.questions{display:grid;gap:24px}
+.questions .field{margin:0}
+.reflection{font-family:Georgia,serif!important;font-size:18px!important;line-height:1.7!important;min-height:430px!important}
+.ownership{margin:32px 0 26px}
+.ratings{display:flex;flex-wrap:wrap;gap:10px}
+.rating{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #1b2435;border-radius:9px;cursor:pointer;font-size:14px;color:#d5d9e1}
+.rating input{position:absolute;opacity:0;width:1px;height:1px}
+.rating:focus-within{outline:2px solid #60a5fa}
+.selectedRating{border-color:#60a5fa;background:#213a82;color:#fff}
+.error{padding:10px 14px;border:1px solid #a47235;border-radius:8px;background:#392710;color:#ffdda8;margin:0 0 18px}
+@media(max-width:1100px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:26px 22px}.step{white-space:normal}}
+@media(max-width:500px){.shell{padding:24px 14px}.steps{gap:8px}.step{font-size:12px;gap:8px;padding:8px}.stepNumber{width:25px;height:25px}.wrap h1{font-size:26px;margin-bottom:28px}}
