@@ -48,3 +48,21 @@ research-data/
 *.db-wal
 .vercel
 .env*
+
+# Local research data, analysis outputs, and tooling
+/data/
+/outputs/
+/validation_work/
+/.auraly_*/
+/.bayes_update/
+/.bayes-validation-venv/
+/.mplcache/
+/.pytensor-cache/
+__pycache__/
+*.pyc
+.Rhistory
+.RData
+.Ruserdata
+/analyse_auraly.R
+/build_auraly_data.py
+/inspect_auraly_sources.py

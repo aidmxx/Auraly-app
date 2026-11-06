@@ -8,6 +8,8 @@ Auraly is a full-stack Next.js research application for a three-condition, betwe
 
 The study application requires researcher-issued credentials. The [four-step design prototype](https://auraly-app.vercel.app/prototype) can be explored separately and does not save responses.
 
+To test all three study conditions, use the login IDs and passwords in [TESTING_ACCOUNTS.txt](TESTING_ACCOUNTS.txt). These are shared demonstration accounts; do not enter personal or sensitive information. Exclude their records from research analysis.
+
 ## Study conditions
 
 | Condition | Writing support |
@@ -43,6 +45,10 @@ The researcher pre-assigns A, B, or C when creating each account. The server enf
 
 ## Production data safety
 
-Use a managed libSQL/Turso database by setting `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` on the host. This keeps data independent from ephemeral application storage and supports provider backups. Restrict the database and hosting accounts to the research team, enable MFA, export encrypted backups on a documented schedule, and define retention/deletion dates in the ethics protocol. Never commit `.env*`, database files, exports, or participant credentials.
+Use a managed libSQL/Turso database by setting `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` on the host. This keeps data independent from ephemeral application storage and supports provider backups. Restrict the database and hosting accounts to the research team, enable MFA, export encrypted backups on a documented schedule, and define retention/deletion dates in the ethics protocol. Never commit `.env*`, database files, exports, or real participant credentials.
 
 Before data collection, run the exact production build through institutional security/privacy review, test all three conditions with test-only accounts, test restore from backup, and verify the AI provider/data-processing terms match participant consent and institutional requirements.
+
+## Running locally
+
+For development or reproduction, see the [local setup guide](docs/LOCAL_SETUP.md).

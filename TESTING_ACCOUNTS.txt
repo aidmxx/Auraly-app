@@ -1,0 +1,20 @@
+Auraly testing accounts
+
+Sign in at: https://auraly-app.vercel.app
+
+Condition A - General AI Tool
+Login ID: P_A
+Password: password123
+
+Condition B - Basic Prompt Construction
+Login ID: P_B
+Password: password123
+
+Condition C - Prompt + Scaffold Construction
+Login ID: P_C
+Password: password123
+
+These are shared demonstration accounts. Other testers may see saved activity.
+Do not enter personal or sensitive information.
+Exclude records for P_A, P_B, and P_C from research analysis.
+Sign out before switching accounts.
