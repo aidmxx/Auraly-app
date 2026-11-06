@@ -1,4 +1,4 @@
-Auraly — controlled reflective-writing study
+# Auraly — controlled reflective-writing study
 
 Auraly is a full-stack Next.js research application for a three-condition, between-subject AI-assisted reflective-writing experiment. Participants use anonymous researcher-issued credentials and are locked to their assigned condition. Researchers use a separate admin role to create accounts, monitor progress, and export data.
 
