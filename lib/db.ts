@@ -1,0 +1,88 @@
+import { createClient, type Client } from "@libsql/client";
+
+let client: Client | undefined;
+let initialization: Promise<void> | undefined;
+
+export function db() {
+  if (!client) {
+    client = createClient({
+      url: process.env.TURSO_DATABASE_URL || "file:research-data/auraly.db",
+      authToken: process.env.TURSO_AUTH_TOKEN,
+    });
+  }
+  return client;
+}
+
+export function initialiseDatabase() {
+  if (!initialization) {
+    initialization = db().batch(
+    [
+      `CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY, login_id TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL,
+        role TEXT NOT NULL CHECK(role IN ('participant','admin')),
+        condition_code TEXT CHECK(condition_code IN ('A','B','C')),
+        active INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS studies (
+        id TEXT PRIMARY KEY, participant_id TEXT UNIQUE NOT NULL REFERENCES users(id),
+        status TEXT NOT NULL DEFAULT 'not_started', started_at TEXT, submitted_at TEXT,
+        completion_seconds INTEGER, final_reflection TEXT DEFAULT '', final_word_count INTEGER DEFAULT 0,
+        questionnaire_json TEXT DEFAULT '{}', feedback TEXT DEFAULT '', updated_at TEXT NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS interactions (
+        id TEXT PRIMARY KEY, participant_id TEXT NOT NULL REFERENCES users(id),
+        sequence_no INTEGER NOT NULL, prompt_inputs_json TEXT NOT NULL, full_prompt TEXT NOT NULL,
+        ai_response TEXT NOT NULL, created_at TEXT NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS scaffolds (
+        id TEXT PRIMARY KEY, participant_id TEXT NOT NULL REFERENCES users(id),
+        question TEXT NOT NULL, answer TEXT NOT NULL, created_at TEXT NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS drafts (
+        id TEXT PRIMARY KEY, participant_id TEXT NOT NULL REFERENCES users(id),
+        content TEXT NOT NULL, word_count INTEGER NOT NULL, created_at TEXT NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS submissions (
+        id TEXT PRIMARY KEY, participant_id TEXT NOT NULL REFERENCES users(id),
+        condition_code TEXT NOT NULL CHECK(condition_code IN ('A','B','C')),
+        started_at TEXT NOT NULL, submitted_at TEXT NOT NULL, completion_seconds INTEGER NOT NULL,
+        edit_count INTEGER NOT NULL DEFAULT 0, prompt_length INTEGER NOT NULL DEFAULT 0,
+        ai_output_length INTEGER NOT NULL DEFAULT 0, final_output_length INTEGER NOT NULL DEFAULT 0,
+        final_reflection TEXT NOT NULL, prompts_json TEXT NOT NULL DEFAULT '[]',
+        ai_outputs_json TEXT NOT NULL DEFAULT '[]', created_at TEXT NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS ai_usage (
+        id TEXT PRIMARY KEY, interaction_id TEXT UNIQUE NOT NULL REFERENCES interactions(id),
+        provider TEXT NOT NULL, model TEXT NOT NULL, input_tokens INTEGER,
+        output_tokens INTEGER, total_tokens INTEGER, duration_ms INTEGER NOT NULL,
+        created_at TEXT NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_interactions_participant ON interactions(participant_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_drafts_participant ON drafts(participant_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_submissions_participant ON submissions(participant_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_ai_usage_created ON ai_usage(created_at)`,
+    ],
+      "write",
+    ).then(() => undefined).catch((error) => {
+      initialization = undefined;
+      throw error;
+    });
+  }
+  return initialization;
+}
+
+export const id = (prefix: string) => `${prefix}_${crypto.randomUUID()}`;
+export const now = () => new Date().toISOString();
+
+/**
+ * Count meaningful text units across space-delimited and CJK writing systems.
+ * Each Han character counts as one unit; other letters/numbers count as words.
+ * Whitespace, line breaks, punctuation, symbols, and emoji do not count.
+ */
+export const words = (value: string) => {
+  const normalized = value.normalize("NFKC");
+  const hanCharacters = normalized.match(/\p{Script=Han}/gu)?.length ?? 0;
+  const withoutHan = normalized.replace(/\p{Script=Han}/gu, " ");
+  const otherWords = withoutHan.match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+  return hanCharacters + otherWords;
+};
