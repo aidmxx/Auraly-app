@@ -1,6 +1,24 @@
-# Auraly — controlled reflective-writing study
+Auraly — controlled reflective-writing study
 
 Auraly is a full-stack Next.js research application for a three-condition, between-subject AI-assisted reflective-writing experiment. Participants use anonymous researcher-issued credentials and are locked to their assigned condition. Researchers use a separate admin role to create accounts, monitor progress, and export data.
+
+## Online access
+
+[Open Auraly](https://auraly-app.vercel.app)
+
+The study application requires researcher-issued credentials. The [four-step design prototype](https://auraly-app.vercel.app/prototype) can be explored separately and does not save responses.
+
+## Study conditions
+
+| Condition | Writing support |
+| --- | --- |
+| A — General AI Tool | Participants request support through a chat-style input. |
+| B — Basic Prompt Construction | Participants build a prompt using topic, context, tone, and writing goal. |
+| C — Prompt + Scaffold Construction | Participants build a structured prompt and answer reflective scaffold questions. |
+
+## Technology
+
+Next.js, React, TypeScript, libSQL/SQLite (Turso in production), and server-side AI calls through OpenAI or local Ollama.
 
 ## What is recorded
 
@@ -13,6 +31,15 @@ Auraly is a full-stack Next.js research application for a three-condition, betwe
 
 Passwords are hashed with bcrypt. Sessions use signed, HTTP-only, same-site cookies. AI and database credentials remain server-side. There are no names or email addresses in the schema.
 
+## Participant access (recommended)
+
+Participants should **not download or install this repository**. Deploy Auraly once to an HTTPS Node.js host, then send each participant:
+
+1. the same HTTPS study URL;
+2. their unique anonymous login ID; and
+3. their unique password, preferably through a separate secure channel.
+
+The researcher pre-assigns A, B, or C when creating each account. The server enforces the assignment and never shows a condition switcher. All three conditions finish by submitting the final reflection directly; there is no questionnaire step.
 
 ## Production data safety
 
