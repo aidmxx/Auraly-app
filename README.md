@@ -13,59 +13,6 @@ Auraly is a full-stack Next.js research application for a three-condition, betwe
 
 Passwords are hashed with bcrypt. Sessions use signed, HTTP-only, same-site cookies. AI and database credentials remain server-side. There are no names or email addresses in the schema.
 
-## Local setup in VS Code
-
-Requirements: Node.js 20.9+ and VS Code.
-
-1. Open the `Auraly-app` folder in VS Code.
-2. Open **Terminal → New Terminal**.
-3. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-4. Copy `.env.example` to `.env.local`, generate an auth secret, and set the values:
-
-   ```bash
-   cp .env.example .env.local
-   openssl rand -base64 32
-   ```
-
-   Paste the generated string into `AUTH_SECRET`, choose a strong `ADMIN_PASSWORD`, and configure one AI provider. For OpenAI, set `AI_PROVIDER=openai` and add the server-side `OPENAI_API_KEY`. For local Ollama, set `AI_PROVIDER=ollama`, start Ollama, and pull the configured model first.
-
-5. Create/update the admin account and database:
-
-   ```bash
-   npm run setup
-   ```
-
-   The setup command automatically loads the values from `.env.local`.
-
-6. Run development mode:
-
-   ```bash
-   npm run dev
-   ```
-
-7. Open <http://localhost:3000>. Sign in using `ADMIN_LOGIN_ID` and `ADMIN_PASSWORD` from `.env.local`.
-
-For a local production check:
-
-```bash
-npm run build
-npm run start
-```
-
-## Participant access (recommended)
-
-Participants should **not download or install this repository**. Deploy Auraly once to an HTTPS Node.js host, then send each participant:
-
-1. the same HTTPS study URL;
-2. their unique anonymous login ID; and
-3. their unique password, preferably through a separate secure channel.
-
-The researcher pre-assigns A, B, or C when creating each account. The server enforces the assignment and never shows a condition switcher. All three conditions finish by submitting the final reflection directly; there is no questionnaire step.
 
 ## Production data safety
 
